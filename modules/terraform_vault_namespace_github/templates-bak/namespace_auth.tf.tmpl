@@ -1,0 +1,7 @@
+resource "vault_auth_backend" "${namespace}-kubernetes" {
+  depends_on = [vault_namespace.${namespace}]
+  provider = vault.${namespace}
+  path = "kubernetes"
+  type = "kubernetes"
+}
+

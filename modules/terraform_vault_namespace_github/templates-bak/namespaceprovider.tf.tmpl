@@ -1,0 +1,8 @@
+provider "vault" {
+    alias = "${namespace}"
+	namespace = "${path}"
+	address = var.vault_addr
+	token = var.vault_token
+}
+
+

@@ -1,0 +1,9 @@
+variable "vault_token" {}
+variable "vault_addr" {}
+variable "vault_namespace" {}
+provider "vault" {
+    alias = "admin"
+	namespace = "admin"
+	address = var.vault_addr
+	token = var.vault_token
+}

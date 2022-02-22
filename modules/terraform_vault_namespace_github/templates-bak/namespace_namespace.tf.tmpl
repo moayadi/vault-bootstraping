@@ -1,0 +1,77 @@
+# Vault namespace,policy and admin token for namespaces
+resource "vault_namespace" "${namespace}" {
+  path = "${namespace}"
+}
+
+
+resource "vault_policy" "${namespace}-namespace-admin-policy" {
+  depends_on = [vault_namespace.${namespace}]
+  provider = vault.${namespace}
+  name="project-namespace-admin-policy"
+  policy=<<EOP
+# Manage namespaces
+
+
+#adding below to allow creation of child token
+path "auth/token/create" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "${namespace}/sys/namespaces/*" {
+   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+# Manage policies
+path "${namespace}/sys/policies/acl/*" {
+   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+# List policies
+path "${namespace}/sys/policies/acl" {
+   capabilities = ["list"]
+}
+
+# Enable and manage secrets engines
+path "${namespace}/sys/mounts/*" {
+   capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# List available secrets engines
+path "${namespace}/sys/mounts" {
+  capabilities = [ "read" ]
+}
+
+# Create and manage entities and groups
+path "${namespace}/identity/*" {
+   capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Manage tokens
+path "${namespace}/auth/token/*" {
+   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+# Manage secrets at '*'
+path "${namespace}/*" {
+   capabilities = ["create", "read", "update", "delete", "list"]
+}
+EOP
+
+}
+
+resource "vault_token" "${namespace}-namespace-admin-token" {
+  depends_on = [vault_namespace.${namespace}]
+  provider = vault.${namespace}
+  policies = ["default",vault_policy.${namespace}-namespace-admin-policy.name]
+  renewable = true
+  no_parent=true
+  ttl = "768h"
+  renew_min_lease = 43200
+  renew_increment = 86400
+}
+
+
+
+
+
+
